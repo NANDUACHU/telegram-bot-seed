@@ -36,6 +36,8 @@ or
 
 ## Bot
 
+you dont have to change anything inside server.js
+
 inside bot.js, you can see one example command
 
     /start

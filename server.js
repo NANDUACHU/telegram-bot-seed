@@ -9,10 +9,7 @@ var bot = require('./bot');
 var app = express();
 app.use(bodyParser.urlencoded({
     extended: true
-}));
-app.use(bodyParser.json());
-
-var port = process.env.PORT || 4711; // set our port
+})).use(bodyParser.json());
 
 // ROUTES FOR OUR API
 // =============================================================================
@@ -24,12 +21,9 @@ bot.start();
 // domain.tld/bot/ see below
 router.post('/', function(req, res) {
 
-    bot.setUser(
-        req.body.message.chat,
-        req.body.message.text
-    );
-
-    bot.checkCommand(req.body.message.text);
+    bot
+        .setUser(req.body.message.chat)
+        .route(req.body.message.text);
 
     res.json({
         status: true
@@ -38,6 +32,9 @@ router.post('/', function(req, res) {
 
 // REGISTER OUR ROUTES -------------------------------
 // all of our routes will be prefixed with /bot
-app.use('/api', router);
-app.listen(port);
-console.log('Magic happens on port ' + port);
+
+app
+    .use('/api', router)
+    .listen(process.env.PORT || 4711);
+
+console.log('Magic happens');

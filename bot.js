@@ -6,28 +6,21 @@ module.exports = {
     pushUrl: 'https://api.telegram.org/bot{yourBotToken}/sendMessage',
     botName: 'exampleBot',
     user: null,
-    userList: {},
-
-    setUser: function(user, command) {
-        this.user = user;
-        if (typeof this.userList[user.first_name] === 'undefined') {
-            user.history = [command];
-            this.userList[user.first_name] = user;
-        } else {
-            this.userList[user.first_name].history.push(command);
-        }
-    },
 
     start: function() {
 
-        // do some things bevor we go inside each request
-        // maybe call data from an external api
+        // do some things bevor we go inside server listing
+        // maybe call data from an external source
 
     },
 
-    checkCommand: function(raw) {
+    setUser: function(user) {
+        this.user = user;
+    },
 
-        command = this.getCommand(raw);
+    route: function(raw) {
+
+        var command = this.getCommand(raw);
 
         if (!command) {
             console.log("exit: no command");
