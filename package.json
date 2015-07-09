@@ -15,7 +15,8 @@
     "dependencies": {
         "express": "~4.0.0",
         "mongoose": "~3.6.13",
-        "body-parser": "~1.0.1"
+        "body-parser": "~1.0.1",
+        "handlebars": "^3.0.3"
     },
     "scripts": {
         "prestart": "npm install",

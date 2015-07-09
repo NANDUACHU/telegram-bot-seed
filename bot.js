@@ -1,5 +1,8 @@
-var request = require('request');
-var winston = require('winston');
+var request = require('request'),
+    winston = require('winston'),
+    routes = require('./messageRouting'),
+    fs = require('fs'),
+    handlebars = require('handlebars');
 
 module.exports = {
 
@@ -7,55 +10,73 @@ module.exports = {
     botName: 'exampleBot',
     user: null,
 
-    start: function() {
-
-        // do some things bevor we go inside server listing
-        // maybe call data from an external source
-
-    },
-
     setUser: function(user) {
         this.user = user;
     },
 
-    route: function(raw) {
+    route: function(command) {
 
-        var command = this.getCommand(raw);
+        // get cleaned command
+        command = this.getCommand(command);
 
+        // exit if no command
         if (!command) {
-            console.log("exit: no command");
+            winston.log('exit', 'no command');
+            return false;
         }
 
-        if (command === '/start') {
+        return this.renderAndSendMessage(command);
+    },
 
-            this.sendMessage(
-                this.getWelcome()
+    renderAndSendMessage: function(command) {
+
+        if (!routes[command]) {
+            return false;
+        }
+
+        var route = routes[command],
+            self = this,
+            data = {};
+
+        if (route.middleware !== null) {
+            data = route.middleware(command);
+        }
+
+        // get template file
+        fs.readFile('messages/' + route.message + '.hbs', function(err, template) {
+            if (err) return false;
+
+            var message = handlebars.compile(template.toString())(data);
+
+            self.sendMessage(
+                message,
+                route.keyboard
             );
+        });
 
-        }
-
-        winston.log('info', command + 'by user', this.user);
-        winston.log('info', 'list of users', this.userList);
+        return data;
     },
 
     /*
         if you want to use it inside groups with more than one bot
         /command@yourBotName
     */
-    getCommand: function (raw) {
+    getCommand: function(raw) {
+
+        raw = raw.replace('/', '');
 
         var array = raw.split("@");
 
         if (array.length > 1) {
+
+            // kick if the command is not for this bot
             if (array[1] !== this.botName) {
                 return false;
             }
             return array[0];
         }
-    },
 
-    getWelcome: function() {
-        return 'Hi ' + this.user.first_name + '\nwelcome to my first bot <3';
+        return !raw ? false : raw;
     },
 
     sendMessage: function(message, keyboard) {
@@ -70,13 +91,12 @@ module.exports = {
             reply_markup: JSON.stringify(keyboard)
         };
 
-        //"keyboard": [["/like", "Done 2"], ["Update"], ["Log Time"]],
-
         request.post({
             url: this.pushUrl,
             form: params
         }, function(err, httpResponse, body) {
             winston.log('info', 'posted');
+            winston.log('info', message);
         })
     }
 
