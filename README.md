@@ -26,6 +26,10 @@ run NodeJS Package Manager
 
     $ npm install
 
+## Configuration
+
+
+
 ## Start Bot Server
 
     $ npm start
@@ -36,10 +40,10 @@ or
 
 ## Bot
 
-you dont have to change anything inside server.js
-
-inside bot.js, you can see one example command
+there are three example routings for messages
 
     /start
+    /help
+    /dice
 
 calls an welcome message

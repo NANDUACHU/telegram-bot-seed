@@ -2,16 +2,17 @@ var request = require('request'),
     winston = require('winston'),
     routes = require('./messageRouting'),
     fs = require('fs'),
-    handlebars = require('handlebars');
+    handlebars = require('handlebars'),
+    config = require('./config');
 
 module.exports = {
 
-    pushUrl: 'https://api.telegram.org/bot{yourBotToken}/sendMessage',
-    botName: 'exampleBot',
+    pushUrl: 'https://api.telegram.org/bot' + config.botToken + '/sendMessage',
     user: null,
 
-    setUser: function(user) {
-        this.user = user;
+    setUser: function(response) {
+        this.user = response.from;
+        this.user.chatID = response.chat.id;
     },
 
     route: function(command) {
@@ -31,20 +32,26 @@ module.exports = {
     renderAndSendMessage: function(command) {
 
         if (!routes[command]) {
+            winston.log('error', 'no routing found');
             return false;
         }
 
         var route = routes[command],
             self = this,
-            data = {};
+            data = {
+                user: this.user
+            };
 
         if (route.middleware !== null) {
-            data = route.middleware(command);
+            data.data = route.middleware(command);
         }
 
         // get template file
-        fs.readFile('messages/' + route.message + '.hbs', function(err, template) {
-            if (err) return false;
+        fs.readFile('./messages/' + route.message + '.hbs', function(err, template) {
+            if (err) {
+                winston.log('error', 'template not found');
+                return false;
+            }
 
             var message = handlebars.compile(template.toString())(data);
 
@@ -70,7 +77,7 @@ module.exports = {
         if (array.length > 1) {
 
             // kick if the command is not for this bot
-            if (array[1] !== this.botName) {
+            if (array[1] !== config.botName) {
                 return false;
             }
             return array[0];
@@ -86,7 +93,7 @@ module.exports = {
         }
 
         var params = {
-            chat_id: this.user.id,
+            chat_id: this.user.chatID,
             text: message,
             reply_markup: JSON.stringify(keyboard)
         };
@@ -95,8 +102,11 @@ module.exports = {
             url: this.pushUrl,
             form: params
         }, function(err, httpResponse, body) {
-            winston.log('info', 'posted');
-            winston.log('info', message);
+            if (!err) {
+                winston.log('info', 'message posted');
+            } else {
+                winston.log('error', 'posting not possable', body);
+            }
         })
     }
 
