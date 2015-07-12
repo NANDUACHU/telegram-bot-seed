@@ -1,7 +1,7 @@
-var request = require('request'),
+var fs = require('fs'),
+    request = require('request'),
     winston = require('winston'),
     routes = require('./messageRouting'),
-    fs = require('fs'),
     handlebars = require('handlebars'),
     config = require('./config');
 

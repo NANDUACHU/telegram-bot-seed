@@ -2,7 +2,7 @@
     "name": "telegramBotNodeJSSeed",
     "author": "Holger Schauf",
     "private": true,
-    "version": "0.0.1",
+    "version": "1.0.1",
     "engines": {
         "node": "0.10.x"
     },
@@ -20,10 +20,13 @@
     },
     "scripts": {
         "prestart": "npm install",
-        "start": "node server.js"
+        "start": "node server.js",
+        "test": "mocha"
     },
     "main": "server.js",
     "devDependencies": {
+        "chai": "^3.0.0",
+        "mocha": "^2.2.5",
         "request": "^2.58.0",
         "winston": "^1.0.1"
     }
