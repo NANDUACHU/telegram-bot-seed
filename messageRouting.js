@@ -1,5 +1,4 @@
 var dice = require('./middleware/dice');
-var help = require('./middleware/help');
 
 module.exports = {
 
@@ -17,7 +16,7 @@ module.exports = {
     help: {
         message: "possableCommands",
         description: "get help",
-        middleware: help.getCommands,
+        middleware: null,
         keyboard: {
             "hide_keyboard": true
         }
@@ -26,7 +25,7 @@ module.exports = {
     dice: {
         message: "rollTheDice",
         description: "roll the dice",
-        middleware: dice.rollTheDice,
+        middleware: dice.rollTheDice.bind(dice),
         keyboard: {
             keyboard: [["/dice"]],
             "one_time_keyboard": true,

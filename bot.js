@@ -26,39 +26,62 @@ module.exports = {
         // exit if no command
         if (!command) {
             winston.log('exit', 'no command');
-            return false;
+            return {
+                status: false,
+                reasion: 'route not found',
+                routes: this.routes()
+            };
         }
 
-        return this.renderAndSendMessage(command);
+        return this.generate(command);
     },
 
-    renderAndSendMessage: function(command) {
+    routes: function() {
 
-        if (!routes[command]) {
-            winston.log('error', 'no routing found');
-            return false;
+        var cleanedRoutes = [];
+
+        for (var route in routes) {
+            cleanedRoutes.push({
+                name: route,
+                description: routes[route].description
+            });
         }
 
+        return cleanedRoutes;
+    },
+
+    generate: function(command) {
+
+        // show route list, if command not exist
+        if (!routes[command]) {
+            return this.routes();
+        }
+
+        // define variables
         var route = routes[command],
             self = this,
             data = {
-                user: this.user
+                user: this.user,
+                routes: this.routes()
             };
 
+        // get data from middleware
         if (route.middleware !== null) {
-            data.data = route.middleware(command);
+            data.data = route.middleware(command, routes);
         }
 
-        // get template file
-        fs.readFile('./messages/' + route.message + '.hbs', function(err, template) {
-            var message = !err ? handlebars.compile(template.toString())(data) : route.message;
+        try {
+            // get template file
+            var template = fs.readFileSync('./messages/' + route.message + '.hbs');
+            data.message = handlebars.compile(template.toString())(data);
+        } catch (e) {
+            data.message = route.message;
+        }
 
-            self.sendMessage(
-                message,
-                route.keyboard
-            );
-        });
-
+        this.sendMessage(
+            data.message,
+            route.keyboard
+        );
         return data;
     },
 

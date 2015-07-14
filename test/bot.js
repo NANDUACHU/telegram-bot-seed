@@ -38,4 +38,31 @@ describe("bot", function() {
         });
     });
 
+    describe(".route()", function() {
+
+        it("route to be a object", function() {
+            var command = '/help@exampleBot';
+            var result = bot.route(command);
+
+            expect(result).to.be.a('object');
+        });
+
+        it("get route data", function() {
+            var command = '/help@exampleBot';
+            var result = bot.route(command);
+
+            expect(result).to.be.a('object');
+            expect(result.routes).to.be.a('array');
+            expect(result.user).to.be.equal(null);
+        });
+
+        it("get route list if route not exist", function() {
+            var command = '/notAvailable@exampleBot';
+            var result = bot.route(command);
+
+            expect(result).to.be.a('array');
+        });
+
+    });
+
 });

@@ -81,9 +81,11 @@ each message message has on object with the userData Object from Bot
 
 ## Bot Keyboard
 
+telegram supports keyboard using
+
 ```javascript
     keyboard: {
-        keyboard: [["/dice"]],
+        keyboard: [["/dice"]],//
         "one_time_keyboard": true,
         "resize_keyboard": true
     }
