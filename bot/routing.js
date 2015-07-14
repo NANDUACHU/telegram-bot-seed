@@ -1,24 +1,16 @@
 var fs = require('fs'),
-    request = require('request'),
+    Post = require('request').post,
     winston = require('winston'),
-    routes = require('./messageRouting'),
+    routes = require('../messageRouting'),
     handlebars = require('handlebars'),
-    config = require('./config');
+    config = require('./config'),
+    user = require('./user');
 
 module.exports = {
 
     pushUrl: 'https://api.telegram.org/bot' + config.botToken + '/sendMessage',
-    user: null,
 
-    setUser: function(response) {
-        this.user = response.from;
-        this.user.chatID = response.chat.id;
-
-        if (response.chat.title)
-            this.user.groupTitle = response.chat.title;
-    },
-
-    route: function(command) {
+    run: function(command) {
 
         // get cleaned command
         command = this.getCommand(command);
@@ -57,32 +49,47 @@ module.exports = {
             return this.routes();
         }
 
-        // define variables
+        // check user
+        if (!user.is()) {
+            return {
+                status: false,
+                reason: 'no user set'
+            };
+        }
+
         var route = routes[command],
-            self = this,
-            data = {
-                user: this.user,
+            request = {
+                status: true,
+                route: route,
+                user: user.get(),
                 routes: this.routes()
             };
 
-        // get data from middleware
-        if (route.middleware !== null) {
-            data.data = route.middleware(command, routes);
-        }
+        request.middleware = this.getMiddleware(request);
 
+        request.message = this.getTemplate(request);
+
+        this.sendMessage(request);
+
+        return request;
+    },
+
+    /*
+     * get middleware data by injected variable
+     *
+     * @params: request
+     */
+    getMiddleware: function(request) {
+        return request.route.middleware !== null ? route.middleware(request) : null;
+    },
+
+    getTemplate: function(request) {
         try {
-            // get template file
-            var template = fs.readFileSync('./messages/' + route.message + '.hbs');
-            data.message = handlebars.compile(template.toString())(data);
+            var template = fs.readFileSync('./messages/' + request.route.message + '.hbs');
+            return handlebars.compile(template.toString())(request);
         } catch (e) {
-            data.message = route.message;
+            return request.route.message;
         }
-
-        this.sendMessage(
-            data.message,
-            route.keyboard
-        );
-        return data;
     },
 
     /*
@@ -107,19 +114,15 @@ module.exports = {
         return !raw ? false : raw;
     },
 
-    sendMessage: function(message, keyboard) {
-
-        if (typeof keyboard === 'undefined') {
-            keyboard = {};
-        }
+    sendMessage: function(request) {
 
         var params = {
-            chat_id: this.user.chatID,
-            text: message,
-            reply_markup: JSON.stringify(keyboard)
+            chat_id: request.user.chatID,
+            text: request.message,
+            reply_markup: JSON.stringify(request.route.keyboard)
         };
 
-        request.post({
+        Post({
             url: this.pushUrl,
             form: params
         }, function(err, httpResponse, body) {

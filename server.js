@@ -2,8 +2,7 @@ var express = require('express'),
     bodyParser = require('body-parser'),
     request = require('request'),
     winston = require('winston'),
-    bot = require('./bot'),
-    config = require('./config');
+    bot = require('./bot');
 
 // configure app to use bodyParser()
 // this will let us get the data from a POST
@@ -19,10 +18,10 @@ var router = express.Router(); // get an instance of the express Router
 // domain.tld/bot/ see below
 router.post('/', function(req, res) {
 
-    bot.setUser(req.body.message);
+    bot.user.set(req.body.message);
 
     res.json({
-        response: bot.route(req.body.message.text)
+        response: bot.routing.run(req.body.message.text)
     });
 });
 
@@ -31,8 +30,8 @@ router.post('/', function(req, res) {
 
 app.use('/bot', router);
 
-app.listen(config.serverPort);
+app.listen(bot.config.serverPort);
 
 app.use(express.static('dist/'));
 
-console.log('bot listining started on port: ' + config.serverPort);
+console.log('bot listining started on port: ' + bot.config.serverPort);
