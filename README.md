@@ -69,7 +69,7 @@ inside messageRouting.js
 #### Options
 
 name  | type | explanation
-------------- | -------------
+-------| ------ | -------------
 message  | string | name of message template
 description  | string | message description
 middleware  | null or function | get request object to generate custom data for template
