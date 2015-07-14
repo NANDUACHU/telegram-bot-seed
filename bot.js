@@ -13,6 +13,9 @@ module.exports = {
     setUser: function(response) {
         this.user = response.from;
         this.user.chatID = response.chat.id;
+
+        if (response.chat.title)
+            this.user.groupTitle = response.chat.title;
     },
 
     route: function(command) {
@@ -48,12 +51,7 @@ module.exports = {
 
         // get template file
         fs.readFile('./messages/' + route.message + '.hbs', function(err, template) {
-            if (err) {
-                winston.log('error', 'template not found');
-                return false;
-            }
-
-            var message = handlebars.compile(template.toString())(data);
+            var message = !err ? handlebars.compile(template.toString())(data) : route.message;
 
             self.sendMessage(
                 message,
@@ -65,9 +63,9 @@ module.exports = {
     },
 
     /*
-        if you want to use it inside groups with more than one bot
-        /command@yourBotName
-    */
+     *  if you want to use it inside groups with more than one bot
+     *  /command@yourBotName
+     */
     getCommand: function(raw) {
 
         raw = raw.replace('/', '');
