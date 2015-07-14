@@ -68,12 +68,12 @@ inside messageRouting.js
 
 #### Options
 
-name  | explanation
+name  | type | explanation
 ------------- | -------------
-message  | string, name of message template
-description  | string, message description
-middleware  | null or function, get request object to generate custom data for template
-keyboard | telegram keyboard options
+message  | string | name of message template
+description  | string | message description
+middleware  | null or function | get request object to generate custom data for template
+keyboard | object | telegram keyboard options
 
 ### Message Template
 
