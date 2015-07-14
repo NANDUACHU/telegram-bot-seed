@@ -2,39 +2,42 @@
 
 Telegram is amazing and gives us the possibility to insert a bot as a service inside chats.
 
+## Get Started
+
 ## Authorize Bot
 
-you have to register a new bot inside the telegram application
+first things first.
 
-follow the introductions on [telegram.org](https://core.telegram.org/bots)
+you have to register a new bot
 
-## Register Webhook
+follow these introductions on [telegram.org](https://core.telegram.org/bots)
 
-telegram needs an callback url, if anyone is typing in an command inside the bot chat
+### Register Webhook
+
+telegram needs an callback url, if anyone is typing in an command inside the bot chat,
+to send the request to our bot
 
     https://api.telegram.org/bot{yourBotToken}/setWebhook?url=https://yourdomain.tld/bot/
 
-## Install Bot dependencies
+### Install Bot dependencies
 
-if you dont have, you must install nodejs
+if you don't have it yet, you must install nodejs
 
-use brew on mac
+    [Install NodeJS](https://github.com/joyent/node/wiki/Installing-Node.js-via-package-manager)
 
-    $ brew install nodejs
+after them install dependencies
 
-run NodeJS Package Manager
-
+```shell
     $ npm install
+```
 
-## Start Bot Server
+### Start Bot Server
 
+```shell
     $ npm start
+```
 
-or
-
-    $ node server.js
-
-## Bot
+## Examples
 
 there are three example routings for messages
 
@@ -42,26 +45,37 @@ there are three example routings for messages
     /help
     /dice
 
-calls an welcome message
+## Bot Message
 
-## Bot Messages
+if you want to create an new message, you have to do following things
 
-if you want to create an new message, you have to insert
+### Route
 
-inside messageRouting.js extend the object
+inside messageRouting.js
 
 ```javascript
-dice: {
-    message: "rollTheDice",
-    description: "roll the dice",
-    middleware: dice.rollTheDice,
-    keyboard: {
-        keyboard: [["/dice"]],
-        "one_time_keyboard": true,
-        "resize_keyboard": true
-    }
+{
+    routeName: {
+        message: templateName,
+        description: messageDescription,
+        middleware: default null,
+        keyboard: {object}
+    },
+    secondRoute: {object},
+    thirdRoute: {object}
 }
 ```
+
+#### Options
+
+name  | explanation
+------------- | -------------
+message  | string, name of message template
+description  | string, message description
+middleware  | null or function, get request object to generate custom data for template
+keyboard | telegram keyboard options
+
+### Message Template
 
 inside messages/ you will find rollTheDice.hbs
 
@@ -70,13 +84,16 @@ inside messages/ you will find rollTheDice.hbs
     🎲{{data.number}}
 ```
 
-each message message has on object with the userData Object from Bot
+all messages get the request object with all available data
 
 ```javascript
-    data: {
-        data: {},
-        user: {}
-    }
+    request = {
+        status: boolean,
+        routes: [array],
+        route: {object},
+        user: {object},
+        middleware: default null
+    };
 ```
 
 ## Bot Keyboard

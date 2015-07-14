@@ -1,4 +1,4 @@
-var bot = require('../bot'),
+var bot = require('../bot/'),
     exampleUser = require('../specs/user'),
     chai = require('chai'),
     expect = chai.expect,

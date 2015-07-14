@@ -13,7 +13,7 @@ module.exports = {
     run: function(command) {
 
         // get cleaned command
-        command = this.getCommand(command);
+        command = this.parse(command);
 
         // exit if no command
         if (!command) {
@@ -96,7 +96,7 @@ module.exports = {
      *  if you want to use it inside groups with more than one bot
      *  /command@yourBotName
      */
-    getCommand: function(raw) {
+    parse: function(raw) {
 
         raw = raw.replace('/', '');
 
@@ -104,7 +104,7 @@ module.exports = {
 
         if (array.length > 1) {
 
-            // kick if the command is not for this bot
+            // stop if not this bot
             if (array[1] !== config.botName) {
                 return false;
             }
